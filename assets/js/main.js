@@ -1,32 +1,37 @@
 
+const pokemonList = document.getElementById('pokemonList');
+const loadMoreButton = document.getElementById('loadMoreButton');
 
-const offset = 0;
-const limit = 10;
-const url = `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`;
+const limit = 5;
+let offset = 0;
 
 
-function convertPokemonToLi(pokemon) {
-    return `
-        <li class="pokemon ${pokemon.type}">
-                <span class="number">#${pokemon.number}</span>
-                <span class="name">${pokemon.name}</span>
-                
-                <div class="detail">
-                    <ol class="types">
-                        ${pokemon.types.map((type) => `<li class="type ${type}">${type}</li>`).join('')}
-                    </ol>
+function loadPokemonItems(offset, limit) {
+    PokeApi.getPokemons(offset, limit).then((pokemons = []) => {
+        const newHtml = pokemons.map((pokemon) => `
+            <li class="pokemon ${pokemon.type}">
+                    <span class="number">#${pokemon.number}</span>
+                    <span class="name">${pokemon.name}</span>
+                    
+                    <div class="detail">
+                        <ol class="types">
+                            ${pokemon.types.map((type) => `<li class="type ${type}">${type}</li>`).join('')}
+                        </ol>
 
-                    <img src="${pokemon.photo}" alt="Imagem do Pokemon ${pokemon.name}">
-                </div>  
-            </li>
-    `
+                        <img src="${pokemon.photo}" alt="Imagem do Pokemon ${pokemon.name}">
+                    </div>  
+                </li>
+            `).join('')
+
+        pokemonList.innerHTML += newHtml
+    })
 }
 
-const pokemonList = document.getElementById('pokemonList');
+loadPokemonItems(offset, limit)
 
-PokeApi.getPokemons().then((pokemons = []) => {
-    const newHtml = pokemons.map(convertPokemonToLi).join('')
-    pokemonList.innerHTML = newHtml
+loadMoreButton.addEventListener('click', () => {
+    offset += limit
+    loadPokemonItems(offset, limit)
 })
 
 
